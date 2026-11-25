@@ -1,0 +1,23 @@
+{
+  "manual": "ข้อมูลสมมุติของโปรแกรมตัวอย่างเท่านั้น ผู้สูงอายุในรายงานนี้หมายถึง age_years >= 60 ตามอายุที่เก็บไว้ ตำบลคือ subdistrict ชื่อเต็ม ตัวบนคือ systolic ตัวล่างคือ diastolic ไม่มีข้อมูลการวินิจฉัย ไม่มีเกณฑ์ความดันเริ่มต้น หากขอนับผู้ที่มีความดันสูง ให้ถามเกณฑ์ตัวบน ตัวล่าง วิธีรวมเงื่อนไข และใช้ผลล่าสุดหรือเคยมีผลเข้าเกณฑ์ เว้นแต่ผู้ใช้ระบุแล้ว รองรับเฉพาะเกณฑ์มากกว่าแบบเคร่งครัด ข้อมูลตัวอย่างมีตำบลสาธิตและตำบลตัวอย่าง หน่วยความดัน mmHg",
+  "reports": [
+    {
+      "id": "elder_count",
+      "description": "Count people aged 60+ in one subdistrict, regardless of readings.",
+      "parameters": { "subdistrict": {"type":"string"} },
+      "sql": "SELECT COUNT(*) AS people FROM person WHERE age_years >= 60 AND subdistrict = :subdistrict"
+    },
+    {
+      "id": "pressure_count",
+      "description": "Count distinct people aged 60+ in one subdistrict meeting user-specified strict greater-than thresholds on the same reading. latest means last recorded measurement, any means any measurement. join specifies whether both thresholds or either must be exceeded.",
+      "parameters": {
+        "subdistrict": {"type":"string"},
+        "systolic": {"type":"number"},
+        "diastolic": {"type":"number"},
+        "join": {"type":"string","enum":["both","either"]},
+        "period": {"type":"string","enum":["latest","any"]}
+      },
+      "sql": "WITH ranked AS (SELECT r.*, ROW_NUMBER() OVER (PARTITION BY r.person_id ORDER BY r.measured_at DESC, r.id DESC) AS seq FROM reading r JOIN person p ON p.id = r.person_id WHERE p.age_years >= 60 AND p.subdistrict = :subdistrict) SELECT COUNT(DISTINCT person_id) AS people FROM ranked WHERE (:period = 'any' OR seq = 1) AND CASE WHEN :join = 'both' THEN systolic > :systolic AND diastolic > :diastolic ELSE systolic > :systolic OR diastolic > :diastolic END"
+    }
+  ]
+}

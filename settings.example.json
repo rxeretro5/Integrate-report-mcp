@@ -1,0 +1,7 @@
+{
+  "model": "",
+  "apiKey": "",
+  "adapter": "./adapters/sqlite.js",
+  "catalog": "./demo/catalog.json",
+  "database": "./demo/sample.sqlite"
+}

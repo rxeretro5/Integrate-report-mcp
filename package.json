@@ -1,0 +1,8 @@
+{
+  "name": "report-assistant-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24.14.0" },
+  "scripts": { "start": "node server.js", "demo": "node demo/create.js", "test": "node --test" }
+}
