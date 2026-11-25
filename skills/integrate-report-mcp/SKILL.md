@@ -9,9 +9,9 @@ Build the requested host application and wire its actual report screen or comman
 
 ## Obtain the upstream
 
-Use the GitHub repository and optional revision the user specified. Otherwise use a prior integration's recorded source, the REPORT_MCP_REPOSITORY environment variable, or a repository.url file beside this SKILL.md. If the skill is inside its upstream checkout, its GitHub origin is also a source. If none identifies the upstream, ask for the GitHub URL once. Never guess the owner or fetch an unrelated namesake. Accept credential-free GitHub clone URLs and use the user's existing Git authentication for private repos.
+Use https://github.com/rxeretro5/Integrate-report-mcp.git as the default source. Use a different credential-free GitHub clone URL only if the user explicitly specifies it. Use existing Git authentication if the source requires it.
 
-Clone to a temporary directory, check out the requested revision or resolve the default branch HEAD on first integration, and record the upstream URL and exact commit in the host project. On subsequent runs reuse the recorded commit unless an update is requested. Inspect the pinned README, package.json, settings.example.json, server.js and client.js to confirm the supported contract.
+On every invocation, clone from the GitHub URL into a fresh temporary directory. Use the default branch HEAD from that clone, or check out the revision explicitly requested by the user. Do not source MCP files from an existing local checkout, the Downloads folder, or a previous integration. If cloning or revision resolution fails, report the error and pause the MCP integration. Record the fetched GitHub URL and exact commit in the host project. Inspect the fetched README, package.json, settings.example.json, server.js and client.js to confirm the supported contract.
 
 Use the host project's dependency mechanism if suitable. For a standalone app, copy the pinned runtime (currently package.json, server.js, assistant.js and the required adapter files) into an app-owned component directory, preserving relative paths and upstream license notices. Include these files in the app's build and distribution. Keep application settings, catalog and adapter customizations outside the vendored files. Preserve existing customizations on repeated invocation.
 

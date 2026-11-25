@@ -7,16 +7,13 @@
 หลัง clone จาก GitHub ให้เปิด PowerShell ที่ราก repository แล้วติดตั้ง Skill สำหรับใช้ข้ามโปรเจกต์ด้วยคำสั่งต่อไปนี้ (สำหรับการติดตั้งครั้งแรก)
 
 ```powershell
-$origin = git remote get-url origin
-if ($LASTEXITCODE -ne 0 -or $origin -notmatch '^(https://github\.com/|git@github\.com:)[\w.-]+/[\w.-]+/?$') { throw 'กรุณากำหนด GitHub origin แบบไม่มี token ก่อน' }
 $codexDir = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $env:USERPROFILE '.codex' }
 $skillDir = Join-Path $codexDir 'skills/integrate-report-mcp'
 New-Item -ItemType Directory -Path $skillDir -Force | Out-Null
 Copy-Item -LiteralPath './skills/integrate-report-mcp/SKILL.md' -Destination $skillDir
-Set-Content -LiteralPath (Join-Path $skillDir 'repository.url') -Value $origin -Encoding ascii
 ```
 
-เปิดแชต Codex ในโปรเจกต์ปลายทาง แล้วสั่ง เช่น “ใช้ $integrate-report-mcp สร้างโปรแกรมคลังสินค้าบน Windows ให้ถามยอดคงเหลือในหน้ารายงานเป็นภาษาไทยได้” Skill จะใช้ GitHub URL ที่บันทึกไว้ ดึงซอร์ส จด commit ที่ใช้ เชื่อมหน้ารายงาน และทดสอบผ่านตัวโปรแกรม หากติดตั้ง Skill ก่อนมี repository.url ให้ระบุ URL ในคำสั่งครั้งแรก
+เปิดแชต Codex ในโปรเจกต์ปลายทาง แล้วสั่ง เช่น “ใช้ $integrate-report-mcp สร้างโปรแกรมคลังสินค้าบน Windows ให้ถามยอดคงเหลือในหน้ารายงานเป็นภาษาไทยได้” ทุกครั้งที่เรียก Skill ระบบจะ clone ซอร์สใหม่จาก https://github.com/rxeretro5/Integrate-report-mcp ใช้ commit ล่าสุดของสาขาหลักหรือรุ่นที่คุณระบุ และบันทึก commit ที่ใช้ในโปรเจกต์ปลายทาง เมื่อเปิดแอป ตัว MCP Server จะรันจากสำเนาที่รวมอยู่ในแอป
 
 Windows App เรียก Server ผ่าน MCP บน stdio หนึ่งโปรเซสต่อผู้ใช้และฐานข้อมูลที่ผู้ใช้นั้นมีสิทธิ์อ่าน รุ่นแรกมีตัวเชื่อม SQLite และโปรแกรมคอนโซลสำหรับลองบทสนทนา ข้อมูลในตัวอย่างเป็นข้อมูลสมมุติทั้งหมด
 
