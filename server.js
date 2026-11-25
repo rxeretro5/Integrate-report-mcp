@@ -40,6 +40,11 @@ async function serve(service) {
     }
     let result;
     if (method === 'initialize' && phase === 'new') {
+      if (typeof params?.protocolVersion !== 'string' || !params.capabilities ||
+          typeof params.capabilities !== 'object' || Array.isArray(params.capabilities) ||
+          typeof params.clientInfo?.name !== 'string' || typeof params.clientInfo.version !== 'string') {
+        send(id,{error:{code:-32602,message:'Invalid initialize parameters'}}); continue;
+      }
       phase = 'initializing';
       result = {protocolVersion:'2025-11-25', capabilities:{tools:{}}, serverInfo:{name:'report-assistant', version:'0.1.0'}};
     } else if (method === 'ping') result = {};
@@ -47,9 +52,10 @@ async function serve(service) {
     else if (method === 'tools/list') result = {tools};
     else if (method === 'tools/call') {
       const tool = tools.find(t => t.name === params?.name);
-      const args = params?.arguments ?? {};
+      const args = params?.arguments === undefined ? {} : params.arguments;
       if (!tool || !args || typeof args !== 'object' || Array.isArray(args) ||
-          Object.keys(args).some(k => !Object.hasOwn(tool.inputSchema.properties,k)) ||
+          Object.entries(args).some(([k,v]) => !Object.hasOwn(tool.inputSchema.properties,k) ||
+            v === null || Array.isArray(v) || typeof v !== tool.inputSchema.properties[k].type) ||
           tool.inputSchema.required.some(k => !Object.hasOwn(args,k))) {
         send(id,{error:{code:-32602,message:'Invalid tool or arguments'}}); continue;
       }

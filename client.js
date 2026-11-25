@@ -1,11 +1,11 @@
 import {spawn} from 'node:child_process';
 import {createInterface} from 'node:readline';
-import {createInterface as prompt} from 'node:readline/promises';
 import {fileURLToPath} from 'node:url';
 
 const child = spawn(process.execPath,[fileURLToPath(new URL('./server.js',import.meta.url))],{stdio:['pipe','pipe','inherit']});
 const replies = createInterface({input:child.stdout})[Symbol.asyncIterator]();
-const terminal = prompt({input:process.stdin,output:process.stdout});
+const terminal = createInterface({input:process.stdin,output:process.stdout});
+const lines = terminal[Symbol.asyncIterator]();
 let id = 0;
 function send(message) { child.stdin.write(JSON.stringify({jsonrpc:'2.0',...message})+'\n'); }
 async function call(method,params) {
@@ -22,7 +22,10 @@ try {
   console.log('ถามรายงาน | /sample ทดลองฐานข้อมูล | /new เริ่มรายงานใหม่ | /exit จบ');
   let sessionId;
   while (true) {
-    const message = (await terminal.question('> ')).trim();
+    if (process.stdin.isTTY) process.stdout.write('> ');
+    const line = await lines.next();
+    if (line.done) break;
+    const message = line.value.trim();
     if (!message) continue;
     if (message === '/exit') break;
     if (message === '/new') { sessionId = undefined; continue; }
